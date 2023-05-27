@@ -1,8 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask
+from flask import render_template
 
 app = Flask(__name__)
 
+
 @app.route('/twiml', methods=['POST'])
-def return_twiml():
-    print("POST TwiML")
+def streams_twiml():
     return render_template('streams.xml')
