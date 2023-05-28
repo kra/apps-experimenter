@@ -8,25 +8,9 @@
 
 To be done once.
 
-- create app
-- repo apps-experimenter branch dev
-- autodeploy
-- region sfo
-- plan basic
-- create
-- add domain
-  - "you manage", get CNAME
-  - add CNAME to ws.app-dev.phu73l.net
-  - finish adding domain on app settings
-  - wait for pending status to resolve in settings
+    doctl --config config.yaml apps create --spec .do/app.yaml
 
-Get app ID.
-
-    doctl --config config.yaml apps list
-
-Update config (this is probably a noop).
-
-    doctl --config config.yaml apps update <id> --spec .do/app.yaml 
+Add CNAME for ws.app-dev.phu73l.net pointing to app host in DigitalOcean domain. Wait for domain status to resolve in settings.
 
 # Deploy dev instance
 
