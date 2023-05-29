@@ -26,14 +26,31 @@ Update config.
 
     doctl --config config.yaml apps update <id> --spec .do/app.yaml 
 
-# Test
+# Unit test
+
+## Setup
+
+To be done once.
 
 - virtualenv -p python3 env
 - source env/bin/activate
 - pip install -r requirements.txt
-- gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py webserver:app
 
-# Smoke
+## Test
+
+    python3 -m unittest discover -s test
+
+# Smoke test setup
+
+- virtualenv -p python3 env
+- source env/bin/activate
+- pip install -r requirements.txt
+
+## Smoke test
+
+    gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py webserver:app
+
+# Smoke integration test
 
 hit the URL on the web GUI page e.g.
 
