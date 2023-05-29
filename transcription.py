@@ -57,7 +57,7 @@ class SpeechClientBridge:
         self.client = None
         self.response_task = None
 
-    async def start(self):
+    def start(self):
         """
         Process our requests and yield the responses until we are stopped.
         """

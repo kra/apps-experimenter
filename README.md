@@ -46,9 +46,11 @@ To be done once.
 - source env/bin/activate
 - pip install -r requirements.txt
 
-## Smoke test
+## Smoke tests
 
     gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py webserver:app
+
+    python server.py
 
 # Smoke integration test
 
