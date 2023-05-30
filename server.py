@@ -32,15 +32,17 @@ async def main():
 
     #(speaker_to_websocket_task, speaker_task) = pipeline_tasks(speaker, websocket)
     #(transcriber_to_speaker_task, transcriber_task) = pipeline_tasks(transcriber, speaker)
+    await transcriber.start()
     await websocket.start()
     util.log("xxx foo")
-    await asyncio.Event().wait()
-    # producer_tasks = []
+
+    producer_tasks = []
+    foo = asyncio.create_task(asyncio.Event().wait())
+    producer_tasks.append(foo)
     # producer_tasks.append(pipeline_task(websocket, transcriber))
-    # util.log("xxx bar")
-    # # We should gather these if we want to be able to shut down or cancel.
-    # await asyncio.wait(producer_tasks, return_when=asyncio.FIRST_COMPLETED)
-    # util.log("a task completed") # XXX This is an error.
+    util.log("xxx bar")
+    await asyncio.wait(producer_tasks, return_when=asyncio.FIRST_COMPLETED)
+    util.log("a task completed") # XXX This is an error.
     # #await transcriber_task
     # #await transcriber_to_speaker_task
     # #await speaker_task
