@@ -2,6 +2,7 @@
 
 import asyncio
 import functools
+import os
 
 #import speech
 import util
@@ -32,9 +33,10 @@ async def main():
 
     #(speaker_to_websocket_task, speaker_task) = pipeline_tasks(speaker, websocket)
     #(transcriber_to_speaker_task, transcriber_task) = pipeline_tasks(transcriber, speaker)
-    await transcriber.start()
+    #await transcriber.start()
     await websocket.start()
     util.log("xxx foo")
+    util.log(os.environ['google_creds_json'])
 
     producer_tasks = []
     foo = asyncio.create_task(asyncio.Event().wait())

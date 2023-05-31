@@ -8,23 +8,49 @@
 
 To be done once.
 
-    doctl --config config.yaml apps create --spec .do/app.yaml
+Copy .do/app.yaml.template to .do/app.yaml, and substitue GOOGLE_CREDS_JSON.
 
-Add CNAME for ws.app-dev.phu73l.net pointing to app host in DigitalOcean domain. Wait for domain status to resolve in settings.
+Create the app, note the id.
+
+    doctl --config config.yaml apps create --spec .do/app.yaml
+    
+Deploy the app by updating it.
+
+    doctl --config config.yaml apps update <id> --spec .do/app.yaml 
+
+Get the hostname from the "Default Ingress" field of the app.
+
+    doctl --config config.yaml apps list <id>
+
+Add CNAME for ws.app-dev.phu73l.net pointing to the app's hostname in DigitalOcean domain. Wait for the domain status to resolve in settings.
 
 # Deploy dev instance
 
+## Update source
+
 If source has changed, push to apps-experimenter dev branch on github.
 
-If config in .do directory has changed, update config.
+## Update config
 
-Get app ID.
+If .do/app.yaml has changed, update config.
+
+Get the app ID.
 
     doctl --config config.yaml apps list
 
 Update config.
 
     doctl --config config.yaml apps update <id> --spec .do/app.yaml 
+
+# Delete dev instance
+
+Get the app ID.
+
+    doctl --config config.yaml apps list
+
+Delete the app.
+
+    doctl --config config.yaml apps delete <id>
 
 # Unit test
 
