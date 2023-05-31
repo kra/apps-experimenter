@@ -29,7 +29,6 @@ send_qsize_log = 4
 recv_qsize_log = 1
 
 
-# XXX this gets creds from env?
 # XXX set for cheaper rate by letting google record
 # adaptation?
 # speech_contexts?
@@ -58,25 +57,12 @@ class SpeechClientBridge:
         self.client = None
         self.response_task = None
 
-    # Google wants creds in a file and the filename in an env var.
-    # This is stupid and dangerous. A build script would be better but
-    # still stupid and dangerous. The build tooling is probably made
-    # for Docker, wiithout that all we have is env for secrets.
-    def cred_kluge(self):
-        """
-        Stuff creds from env into a file, put that filename into an
-        env var.
-        """
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google_creds.json'
-        with open('google_creds.json', 'w') as f:
-            f.write(os.environ['google_creds_json'])
-
     async def start(self):
         """
         Process our requests and yield the responses until we are stopped.
         """
         util.log("transcription client starting")
-        self.cred_kluge()
+        util.cred_kluge()
         self.client = speech_v1.SpeechAsyncClient()
         self.response_task = asyncio.create_task(self.response_iter())
 

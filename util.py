@@ -1,3 +1,5 @@
+import os
+
 def log(msg):
     print(msg)
 
@@ -15,3 +17,16 @@ def wav_to_chunk(b):
     #_header = f.read(58)
     #return f.read()
     return b[58:]
+
+# Google wants creds in a file and the filename in an env var.
+# This is stupid and dangerous. A build script would be better but
+# still stupid and dangerous. The build tooling is probably made
+# for Docker, wiithout that all we have is env for secrets.
+def cred_kluge():
+    """
+    Stuff creds from env into a file, put that filename into an
+    env var.
+    """
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google_creds.json'
+    with open('google_creds.json', 'w') as f:
+        f.write(os.environ['google_creds_json'])

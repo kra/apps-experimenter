@@ -76,7 +76,7 @@ To be done once.
 
     gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py webserver:app
 
-    python server.py
+    export google_creds_json=XXX && python server.py
 
 # Smoke integration test
 
