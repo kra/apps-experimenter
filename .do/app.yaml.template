@@ -13,8 +13,21 @@ ingress:
     match:
       path:
         prefix: /socket
+  - component:
+      name: static
+    match:
+      path:
+        prefix: /
 name: foo-app
 region: sfo
+static_sites:
+- environment_slug: html
+  github:
+    branch: dev
+    deploy_on_push: true
+    repo: kra/apps-experimenter
+  name: static
+  source_dir: /
 services:
 - environment_slug: python
   github:
@@ -41,5 +54,4 @@ services:
   envs:
   - key: google_creds_json
     scope: RUN_AND_BUILD_TIME
-    value: >
-    GOOGLE_CREDS_JSON
+    value: GOOGLE_CREDS_JSON
