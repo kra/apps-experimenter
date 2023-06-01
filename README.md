@@ -4,21 +4,26 @@
 - add app-dev.phu73l.net DigitalOcean domain
 - have config.yaml containing "access-token: <token>"
 
-# Set up dev instance
-
 To be done once.
 
-Copy .do/app.yaml.template to .do/app.yaml, and substitue GOOGLE_CREDS_JSON.
+- virtualenv -p python3 env
+- source env/bin/activate
+- pip install -r requirements.txt
+- pip install python-dotenv
+
+# Set up dev instance
+
+Have .env based on .env.sample.
 
 Create the app, note the id.
 
-    doctl --config config.yaml apps create --spec .do/app.yaml
+    ./make_app_yaml.py | doctl --config config.yaml apps create --spec -
     
-Get the hostname from the "Default Ingress" field of the app.
+Get the hostname from the "Default Ingress" field of the app. This may take a while before it is available.
 
     doctl --config config.yaml apps list <id>
 
-Add CNAME for ws.app-dev.phu73l.net pointing to the app's hostname in DigitalOcean domain. Wait for the domain status to resolve in the settings page (or just wait longer than the TTL).
+Add CNAME for ws.app-dev.phu73l.net pointing to the app's hostname in DigitalOcean domain. Wait for the domain status to be resolved in the settings page (or just wait longer than the TTL) and for the resulting deploy to finish.
 
 # Deploy dev instance
 
@@ -36,7 +41,7 @@ Get the app ID.
 
 Update config.
 
-    doctl --config config.yaml apps update <id> --spec .do/app.yaml 
+    ./make_app_yaml.py | doctl --config config.yaml apps update <id> --spec -
 
 # Delete dev instance
 
@@ -50,31 +55,17 @@ Delete the app.
 
 # Unit test
 
-## Setup
-
-To be done once.
-
-- virtualenv -p python3 env
 - source env/bin/activate
-- pip install -r requirements.txt
+- ./test.py
 
-## Test
+# Smoke test
 
-    python3 -m unittest discover -s test
-
-# Smoke test setup
-
-- virtualenv -p python3 env
 - source env/bin/activate
-- pip install -r requirements.txt
-
-## Smoke test
-
-    export google_creds_json=XXX && python server.py
+= ./test_server.py
 
 # Smoke integration test
 
-hit the URL on the web GUI page e.g.
+Hit the URL on the TwiML page e.g.
 
     wget https://ws.app-dev.phu73l.net/index.xml
 

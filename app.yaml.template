@@ -36,6 +36,6 @@ services:
   run_command: python server.py
   source_dir: /
   envs:
-  - key: google_creds_json
+  - key: GOOGLE_CREDS_JSON
     scope: RUN_AND_BUILD_TIME
-    value: GOOGLE_CREDS_JSON
+    value: '{GOOGLE_CREDS_JSON}'
