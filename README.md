@@ -14,15 +14,11 @@ Create the app, note the id.
 
     doctl --config config.yaml apps create --spec .do/app.yaml
     
-Deploy the app by updating it.
-
-    doctl --config config.yaml apps update <id> --spec .do/app.yaml 
-
 Get the hostname from the "Default Ingress" field of the app.
 
     doctl --config config.yaml apps list <id>
 
-Add CNAME for ws.app-dev.phu73l.net pointing to the app's hostname in DigitalOcean domain. Wait for the domain status to resolve in settings.
+Add CNAME for ws.app-dev.phu73l.net pointing to the app's hostname in DigitalOcean domain. Wait for the domain status to resolve in the settings page (or just wait longer than the TTL).
 
 # Deploy dev instance
 
