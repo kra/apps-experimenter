@@ -4,11 +4,6 @@ domains:
 ingress:
   rules:
   - component:
-      name: webserver
-    match:
-      path:
-        prefix: /twiml
-  - component:
       name: service
     match:
       path:
@@ -29,17 +24,6 @@ static_sites:
   name: static
   source_dir: /
 services:
-- environment_slug: python
-  github:
-    branch: dev
-    deploy_on_push: true
-    repo: kra/apps-experimenter
-  http_port: 8080
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  name: webserver
-  run_command: gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py webserver:app
-  source_dir: /
 - environment_slug: python
   github:
     branch: dev

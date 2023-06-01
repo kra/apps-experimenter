@@ -74,17 +74,16 @@ To be done once.
 
 ## Smoke test
 
-    gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py webserver:app
-
     export google_creds_json=XXX && python server.py
 
 # Smoke integration test
 
 hit the URL on the web GUI page e.g.
 
-    wget --post-data "foo=bar" https://ws.app-dev.phu73l.net/twiml
+    wget https://ws.app-dev.phu73l.net/index.xml
 
 # Notes
 
+https://docs.digitalocean.com/products/app-platform/reference/app-spec/
 https://docs.digitalocean.com/tutorials/app-deploy-flask-app/
 https://github.com/digitalocean/sample-python/tree/main
