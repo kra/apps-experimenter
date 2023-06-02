@@ -27,7 +27,7 @@ class Server:
 
     async def start(self):
         util.log("websocket server starting")
-        self.server = await websockets.serve(self.handle, port=port)
+        self.server = await websockets.serve(self.handler, port=port)
 
     async def stop(self):
         await self.server.close()
@@ -104,8 +104,16 @@ class Server:
                      "media": {"payload": payload}}))
             util.log("websocket sent response")
 
-    async def handle(self, websocket):
-        # XXX we will need to restart if connection was closed?
-        await asyncio.gather(
-            self.consumer_handler(websocket),
-            self.producer_handler(websocket))
+    async def handler(self, websocket):
+        """
+        Set up, run, and tear down consumer and producer tasks
+        for this websocket connection.
+        """
+        util.log("websocket connection opened")
+        done, pending = await asyncio.wait(
+            [asyncio.create_task(self.consumer_handler(websocket)),
+             asyncio.create_task(self.producer_handler(websocket))],
+            return_when=asyncio.FIRST_COMPLETED)
+        for task in pending:
+            task.cancel()
+        util.log("websocket connection closed")
