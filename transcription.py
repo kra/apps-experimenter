@@ -44,7 +44,7 @@ streaming_config = speech_v1.StreamingRecognitionConfig(
     config=config,
     interim_results=True)
 
-class SpeechClientBridge:
+class Client:
     """
     Class to process and emit transcription.
     Yields result strings with recieve_transcriptions().

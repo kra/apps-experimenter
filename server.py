@@ -28,7 +28,7 @@ def pipeline_task(producer, consumer):
 async def main():
     util.log("server starting")
     speaker = speech.Client()
-    transcriber = transcription.SpeechClientBridge()
+    transcriber = transcription.Client()
     websocket = websocketserver.Server()
 
     util.cred_kluge()

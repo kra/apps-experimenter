@@ -17,7 +17,7 @@ class TestStringMethods(unittest.IsolatedAsyncioTestCase):
 
     async def test_audio_generator_terminated(self):
         """ The audio_generator method of a terminated bridge does not produce values."""
-        bridge = transcription.SpeechClientBridge()
+        bridge = transcription.Client()
         yield bridge.start()
         bridge.stop()
         async for i in bridge.audio_generator():
@@ -25,14 +25,14 @@ class TestStringMethods(unittest.IsolatedAsyncioTestCase):
 
     async def test_audio_generator_empty(self):
         """ The audio_generator method of a bridge with no requests does not produce values."""
-        bridge = transcription.SpeechClientBridge()
+        bridge = transcription.Client()
         yield bridge.start()
         self.assertTrue(await self.check_audio_generator_empty(bridge))
 
     async def test_audio_generator_one(self):
         """ The audio_generator method of a bridge with one request produces one value."""
         in_val = 1
-        bridge = transcription.SpeechClientBridge()
+        bridge = transcription.Client()
         yield bridge.start()
         bridge.add_request(in_val)
         out_val = await anext(bridge.audio_generator())
@@ -51,7 +51,7 @@ class TestStringMethods(unittest.IsolatedAsyncioTestCase):
             return_value=asyncio.Future())
         _mock_speech_v1.SpeechAsyncClient = mock.Mock(return_value=client)
         in_vals = [1, 2]
-        bridge = transcription.SpeechClientBridge()
+        bridge = transcription.Client()
         await bridge.start()
         for i in in_vals:
             bridge.add_request(i)
