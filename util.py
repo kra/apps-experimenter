@@ -2,6 +2,10 @@ import os
 
 def log(msg):
     print(msg)
+    # q&d temporary log file
+    with open('/tmp/foo', 'a') as f:
+        f.write(msg)
+        f.write('\n')
 
 def wav_to_chunk(b):
     """Return wav bytes with header removed."""
