@@ -78,7 +78,7 @@ class Server:
                     raise Exception("Unexpected new streamSid")
                 self._stream_sid = message['streamSid']
             elif message["event"] == "media":
-                #util.log("Received event 'media'")
+                # util.log("Received event 'media'")
                 # This assumes we get messages in order, we should instead
                 # verify the sequence numbers? Or just skip?
                 # message["sequenceNumber"]

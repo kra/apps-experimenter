@@ -27,6 +27,7 @@ def cred_kluge():
     Stuff creds from env into a file, put that filename into an
     env var.
     """
+    log("cred_kluge")
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google_creds.json'
     with open('google_creds.json', 'w') as f:
         f.write(os.environ['GOOGLE_CREDS_JSON'])

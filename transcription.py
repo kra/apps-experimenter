@@ -62,7 +62,6 @@ class SpeechClientBridge:
         Process our requests and yield the responses until we are stopped.
         """
         util.log("transcription client starting")
-        util.cred_kluge()
         self.client = speech_v1.SpeechAsyncClient()
         self.response_task = asyncio.create_task(self.response_iter())
 
@@ -138,6 +137,7 @@ class SpeechClientBridge:
             yield b"".join(data)
 
     async def on_transcription_response(self, response):
+        util.log(f"transcription received response")
         if not response.results:
             # We get this when the transcriber times out. Is that the
             # only time we get it?

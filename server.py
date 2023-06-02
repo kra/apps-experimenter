@@ -31,6 +31,7 @@ async def main():
     transcriber = transcription.SpeechClientBridge()
     websocket = websocketserver.Server()
 
+    util.cred_kluge()
     await speaker.start()
     await transcriber.start()
     await websocket.start()

@@ -25,7 +25,6 @@ class Client:
         Process our requests and enqueue chunk response.
         """
         util.log("text to speech client starting")
-        util.cred_kluge()
         self._client = texttospeech_v1.TextToSpeechAsyncClient()
         self.response_task = asyncio.create_task(self.response_iter())
 
