@@ -52,8 +52,8 @@ class Client:
     Call add_request() to add chunks.
     """
     def __init__(self):
-        self._send_queue = asyncio.Queue()
-        self._recv_queue = asyncio.Queue()
+        self._send_queue = asyncio.Queue() # Bytes to send to server.
+        self._recv_queue = asyncio.Queue() # Text received from server.
         self.client = None
         self.response_task = None
 

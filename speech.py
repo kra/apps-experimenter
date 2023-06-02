@@ -16,8 +16,8 @@ class Client:
     Call add_request() to add text.
     """
     def __init__(self):
-        self._send_queue = asyncio.Queue()
-        self._recv_queue = asyncio.Queue()
+        self._send_queue = asyncio.Queue() # Text to send to server.
+        self._recv_queue = asyncio.Queue() # Bytes received from server.
         self._client = None
 
     async def start(self):

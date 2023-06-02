@@ -22,8 +22,8 @@ class Server:
         """Yields media chunks with recieve_media()."""
         self.server = None
         self._stream_sid = None
-        self._send_queue = asyncio.Queue()
-        self._recv_queue = asyncio.Queue()
+        self._send_queue = asyncio.Queue() # Bytes to send to socket.
+        self._recv_queue = asyncio.Queue() # Bytes received from socket.
 
     async def start(self):
         util.log("websocket server starting")
