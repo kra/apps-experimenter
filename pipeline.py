@@ -1,7 +1,9 @@
 import asyncio
 
 class Composer:
-    """Chains a two producer/consumers together to form one producer/consumer"""
+    """
+    Chains two producer/consumers together to form one
+    producer/consumer"""
     # There is surely a pattern for this async generator composer
     # that I just don't know the name of.
 

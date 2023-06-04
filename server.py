@@ -24,14 +24,13 @@ async def main():
     websocket = websocketserver.Server()
 
     util.cred_kluge()
-    await speaker.start()
-    await transcriber.start()
-    await websocket.start()
 
+    line = pipeline.Composer(transcriber, speaker)
+    await line.start()
+    await websocket.start()
     producer_tasks = []
-    producer_tasks.append(pipeline.pipeline_task(speaker, websocket))
-    producer_tasks.append(pipeline.pipeline_task(transcriber, speaker))
-    producer_tasks.append(pipeline.pipeline_task(websocket, transcriber))
+    producer_tasks.append(pipeline.pipeline_task(line, websocket))
+    producer_tasks.append(pipeline.pipeline_task(websocket, line))
 
     await asyncio.wait(
         producer_tasks, return_when=asyncio.FIRST_COMPLETED)
