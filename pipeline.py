@@ -34,15 +34,3 @@ class Composer:
     async def receive_response(self):
         async for response in self.consumer.receive_response():
             yield response
-
-
-def pipeline_task(producer, consumer):
-    """Return task to send producer messages to consumer."""
-    async def step_generator():
-        """
-        Async generator to receive from producer and send to consumer.
-        """
-        async for item in producer.receive_response():
-            consumer.add_request(item)
-    step_task = asyncio.create_task(step_generator())
-    return step_task

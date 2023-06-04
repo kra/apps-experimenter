@@ -7,11 +7,10 @@ import time
 import uuid
 import websockets
 
+import pipeline
+import speech
 import transcription
 import util
-
-send_qsize_log = 2
-recv_qsize_log = 3
 
 #host = "localhost"
 port = 6000
@@ -22,8 +21,6 @@ class Server:
         """Yields media chunks with recieve_media()."""
         self.server = None
         self._stream_sid = None
-        self._send_queue = asyncio.Queue() # Bytes to send to socket.
-        self._recv_queue = asyncio.Queue() # Bytes received from socket.
 
     async def start(self):
         util.log("websocket server starting")
@@ -33,27 +30,8 @@ class Server:
         await self.server.close()
         raise NotImplementedError
 
-    async def receive_response(self):
-        """Generator for received media chunks."""
-        while True:
-            yield await self._recv_queue.get()
-            qsize = self._recv_queue.qsize()
-            if qsize >= recv_qsize_log:
-                util.log(f"websocket recv queue size {qsize}")
-
-    def add_request(self, buffer):
-        """Add a chunk of bytes to the sending queue."""
-        buffer = bytes(buffer)
-        self._send_queue.put_nowait(buffer)
-        qsize = self._send_queue.qsize()
-        if qsize >= send_qsize_log:
-            util.log(f"websocket send queue size {qsize}")
-
-    def _enqueue_media(self, message):
-        """Add a chunk of bytes to the receiving queue."""
-        media = message["media"]
-        chunk = base64.b64decode(media["payload"])
-        self._recv_queue.put_nowait(chunk)
+    def _message_to_chunk(self, message):
+        return base64.b64decode(message["media"]["payload"])
 
     # def mark_message(self):
     #     """
@@ -63,7 +41,13 @@ class Server:
     #             "streamSid": self._stream_sid,
     #             "mark": {"name": uuid.uuid4().hex}}
 
-    async def consumer_handler(self, websocket):
+    async def get_pipeline(self):
+        """ Return a client pipeline for chunk requests and responses."""
+        line = pipeline.Composer(transcription.Client(), speech.Client())
+        await line.start()
+        return line
+
+    async def consumer_handler(self, line, websocket):
         """
         Handle every message in websocket until we receive a stop
         message or barf.
@@ -72,10 +56,12 @@ class Server:
         async for message in websocket:
             message = json.loads(message)
             if message["event"] == "connected":
-                util.log(f"websocket received event 'connected': {message}")
+                util.log(
+                    f"websocket received event 'connected': {message}")
             elif message["event"] == "start":
                 util.log(f"websocket received event 'start': {message}")
-                if self._stream_sid and self._stream_sid != message['streamSid']:
+                if (self._stream_sid and
+                    self._stream_sid != message['streamSid']):
                     raise Exception("Unexpected new streamSid")
                 self._stream_sid = message['streamSid']
             elif message["event"] == "media":
@@ -83,7 +69,7 @@ class Server:
                 # This assumes we get messages in order, we should instead
                 # verify the sequence numbers? Or just skip?
                 # message["sequenceNumber"]
-                self._enqueue_media(message)
+                line.add_request(self._message_to_chunk(message))
             elif message["event"] == "stop":
                 util.log(f"websocket received event 'stop': {message}")
                 self._stream_sid = None
@@ -92,10 +78,12 @@ class Server:
                 util.log(f"websocket received event 'mark': {message}")
         util.log("websocket connection closed")
 
-    async def producer_handler(self, websocket):
-        """ Wait for messages from our send queue, and send them to the websocket."""
-        while True:
-            chunk = await self._send_queue.get()
+    async def producer_handler(self, line, websocket):
+        """
+        Iterate over messages from line, and send them to
+        the websocket.
+        """
+        async for chunk in line.receive_response():
             payload = base64.b64encode(chunk).decode()
             await websocket.send(
                 json.dumps(
@@ -110,10 +98,12 @@ class Server:
         for this websocket connection.
         """
         util.log("websocket connection opened")
+        line = await self.get_pipeline()
         done, pending = await asyncio.wait(
-            [asyncio.create_task(self.consumer_handler(websocket)),
-             asyncio.create_task(self.producer_handler(websocket))],
+            [asyncio.create_task(self.consumer_handler(line, websocket)),
+             asyncio.create_task(self.producer_handler(line, websocket))],
             return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
+        await line.stop()
         util.log("websocket connection closed")
