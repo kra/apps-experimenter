@@ -68,6 +68,7 @@ class Server:
         Handle every message in websocket until we receive a stop
         message or barf.
         """
+        util.log("websocket connection opened")
         async for message in websocket:
             message = json.loads(message)
             if message["event"] == "connected":
@@ -90,10 +91,9 @@ class Server:
             elif message["event"] == "mark":
                 util.log(f"websocket received event 'mark': {message}")
         util.log("websocket connection closed")
-        # XXX Must stop server/protocol here, or it just lives on, and other
-        #     possible cleanup to prepare for restart.
 
     async def producer_handler(self, websocket):
+        """ Wait for messages from our send queue, and send them to the websocket."""
         while True:
             chunk = await self._send_queue.get()
             payload = base64.b64encode(chunk).decode()
