@@ -15,20 +15,28 @@ import util
 #host = "localhost"
 port = 6000
 
+
+class Socket:
+    def __init__(self, websocket, line):
+        self.websocket = websocket
+        self.line = line
+        self.stream_sid = None
+
+
 class Server:
 
     def __init__(self):
         """Yields media chunks with recieve_media()."""
         self.server = None
-        self._stream_sid = None
+        self.sockets = set()
 
     async def start(self):
         util.log("websocket server starting")
         self.server = await websockets.serve(self.handler, port=port)
 
-    async def stop(self):
-        await self.server.close()
-        raise NotImplementedError
+    # async def stop(self):
+    #     await self.server.close()
+    #     raise NotImplementedError
 
     def _message_to_chunk(self, message):
         return base64.b64decode(message["media"]["payload"])
@@ -47,50 +55,55 @@ class Server:
         await line.start()
         return line
 
-    async def consumer_handler(self, line, websocket):
+    async def consumer_handler(self, socket):
         """
-        Handle every message in websocket until we receive a stop
+        Handle every message in socket's websocket until we receive a stop
         message or barf.
         """
         util.log("websocket connection opened")
-        async for message in websocket:
+        async for message in socket.websocket:
             message = json.loads(message)
             if message["event"] == "connected":
                 util.log(
                     f"websocket received event 'connected': {message}")
             elif message["event"] == "start":
                 util.log(f"websocket received event 'start': {message}")
-                if (self._stream_sid and
-                    self._stream_sid != message['streamSid']):
-                    raise Exception("Unexpected new streamSid")
-                self._stream_sid = message['streamSid']
+                #if (self._stream_sid and
+                #    self._stream_sid != message['streamSid']):
+                #    raise Exception("Unexpected new streamSid")
+                socket.stream_sid = message['streamSid']
             elif message["event"] == "media":
                 # util.log("Received event 'media'")
                 # This assumes we get messages in order, we should instead
                 # verify the sequence numbers? Or just skip?
                 # message["sequenceNumber"]
-                line.add_request(self._message_to_chunk(message))
+                socket.line.add_request(self._message_to_chunk(message))
             elif message["event"] == "stop":
                 util.log(f"websocket received event 'stop': {message}")
-                self._stream_sid = None
+                #self._stream_sid = None
                 break
             elif message["event"] == "mark":
                 util.log(f"websocket received event 'mark': {message}")
         util.log("websocket connection closed")
 
-    async def producer_handler(self, line, websocket):
+    async def send(self, socket, chunk):
+        """Send chunk to websocket in a media message."""
+        payload = base64.b64encode(chunk).decode()
+        await socket.websocket.send(
+            json.dumps(
+                {"event": "media",
+                 "streamSid": socket.stream_sid,
+                 "media": {"payload": payload}}))
+        util.log("websocket sent response")
+
+    async def producer_handler(self, socket):
         """
         Iterate over messages from line, and send them to
         the websocket.
         """
-        async for chunk in line.receive_response():
-            payload = base64.b64encode(chunk).decode()
-            await websocket.send(
-                json.dumps(
-                    {"event": "media",
-                     "streamSid": self._stream_sid,
-                     "media": {"payload": payload}}))
-            util.log("websocket sent response")
+        async for chunk in socket.line.receive_response():
+            for socket in self.sockets:
+                await self.send(socket, chunk)
 
     async def handler(self, websocket):
         """
@@ -99,12 +112,17 @@ class Server:
         """
         util.log("websocket connection opened")
         line = await self.get_pipeline()
+        socket = Socket(websocket, line)
+        self.sockets.add(socket)
+        util.log("websocket connections: {}".format(len(self.sockets)))
         done, pending = await asyncio.wait(
-            [asyncio.create_task(self.consumer_handler(line, websocket)),
-             asyncio.create_task(self.producer_handler(line, websocket))],
+            [asyncio.create_task(self.consumer_handler(socket)),
+             asyncio.create_task(self.producer_handler(socket))],
             return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
         line.stop()
+        self.sockets.remove(socket)
         util.log("websocket connection closed")
+
 
