@@ -105,5 +105,6 @@ class Server:
             return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
-        await line.stop()
+        line.stop()
         util.log("websocket connection closed")
+
