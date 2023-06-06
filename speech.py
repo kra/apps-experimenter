@@ -1,10 +1,32 @@
+"""Text to speech client."""
+
 import asyncio
 from google.cloud import texttospeech_v1
 
 import util
 
+voices = [
+    "en-US-Standard-A",
+    "en-US-Standard-B",
+    "en-US-Standard-C",
+    "en-US-Standard-D",
+    "en-US-Standard-E",
+    "en-US-Standard-F",
+    "en-US-Standard-G",
+    "en-US-Standard-H",
+    "en-US-Standard-I",
+    "en-US-Standard-J",
+    "en-US-News-K",
+    "en-US-News-L",
+    "en-US-News-M",
+    "en-US-News-N",
+    "en-US-Studio-M",
+    "en-US-Studio-O",
+    "en-US-Polyglot-1"]
+
 voice = texttospeech_v1.VoiceSelectionParams()
 voice.language_code = "en-US"
+voice.name = 'en-US-News-L'
 audio_config = texttospeech_v1.AudioConfig()
 audio_config.audio_encoding = "MULAW"
 audio_config.sample_rate_hertz = 8000
@@ -37,7 +59,8 @@ class Client:
 
     async def response_iter(self):
         async for request in self.request_generator():
-            response = await self._client.synthesize_speech(request=request)
+            response = await self._client.synthesize_speech(
+                request=request)
             chunk = util.wav_to_chunk(response.audio_content)
             self._recv_queue.put_nowait(chunk)
 
@@ -64,3 +87,4 @@ class Client:
             input=input_,
             voice=voice,
             audio_config=audio_config)
+
