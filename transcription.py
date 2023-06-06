@@ -28,21 +28,20 @@ import util
 send_qsize_log = 4
 recv_qsize_log = 1
 
-
-# XXX set for cheaper rate by letting google record
-# adaptation?
-# speech_contexts?
-# enable_automatic_punctuation=True
+# https://cloud.google.com/speech-to-text/docs/reference/rest/v1/RecognitionConfig
+# XXX set for cheaper rate by letting google record adaptation?
 # model latest_long phone_call
 # use_enhanced=True
 # max_alternatives
+# interim_results=True
 config = speech_v1.RecognitionConfig(
     encoding=speech_v1.RecognitionConfig.AudioEncoding.MULAW,
     sample_rate_hertz=8000,
-    language_code="en-US")
+    language_code="en-US",
+    model="phone_call",
+    enable_automatic_punctuation=True)
 streaming_config = speech_v1.StreamingRecognitionConfig(
-    config=config,
-    interim_results=True)
+    config=config)
 
 class Client:
     """
@@ -137,7 +136,7 @@ class Client:
             yield b"".join(data)
 
     async def on_transcription_response(self, response):
-        util.log(f"transcription received response")
+        #util.log(f"transcription received response")
         if not response.results:
             # We get this when the transcriber times out. Is that the
             # only time we get it?
@@ -149,7 +148,6 @@ class Client:
         except AttributeError:
             is_final = False
         if not is_final:
-            #util.log("not final")
             return None
         result = response.results[0]
         if not result.alternatives:
