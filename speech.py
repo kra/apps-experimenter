@@ -1,6 +1,8 @@
 """Text to speech client."""
 
 import asyncio
+import itertools
+import random
 from google.cloud import texttospeech_v1
 
 import util
@@ -23,10 +25,9 @@ voices = [
     "en-US-Studio-M",
     "en-US-Studio-O",
     "en-US-Polyglot-1"]
+voices = random.sample(voices, len(voices))
+voices = itertools.cycle(voices)
 
-voice = texttospeech_v1.VoiceSelectionParams()
-voice.language_code = "en-US"
-voice.name = 'en-US-News-L'
 audio_config = texttospeech_v1.AudioConfig()
 audio_config.audio_encoding = "MULAW"
 audio_config.sample_rate_hertz = 8000
@@ -41,6 +42,9 @@ class Client:
         self._send_queue = asyncio.Queue() # Text to send to server.
         self._recv_queue = asyncio.Queue() # Bytes received from server.
         self._client = None
+        self.voice = texttospeech_v1.VoiceSelectionParams()
+        self.voice.language_code = "en-US"
+        self.voice.name = next(voices)
 
     async def start(self):
         """
@@ -85,6 +89,6 @@ class Client:
         input_.text = text
         return texttospeech_v1.SynthesizeSpeechRequest(
             input=input_,
-            voice=voice,
+            voice=self.voice,
             audio_config=audio_config)
 
