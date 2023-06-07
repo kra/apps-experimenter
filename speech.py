@@ -72,7 +72,7 @@ class Client:
         """Generator for received media chunks."""
         while True:
             yield await self._recv_queue.get()
-            util.log(f"text to speech sent response")
+            util.log(f"text to speech sent response in {self.voice.name}")
 
     def add_request(self, text):
         """Add text to the processing queue."""
