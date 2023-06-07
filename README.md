@@ -61,6 +61,7 @@ Delete the app.
 # Smoke test
 
 - source env/bin/activate
+- ./itest.py
 - ./test_server.py
 
 # Smoke integration test
