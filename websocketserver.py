@@ -102,8 +102,9 @@ class Server:
         the websocket.
         """
         async for chunk in socket.line.receive_response():
-            for socket in self.sockets:
-                await self.send(socket, chunk)
+            for s in self.sockets:
+                if s != socket:
+                    await self.send(s, chunk)
 
     async def handler(self, websocket):
         """
