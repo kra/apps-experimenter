@@ -8,6 +8,7 @@ import uuid
 import websockets
 
 import pipeline
+import lines
 import speech
 import transcription
 import util
@@ -17,9 +18,9 @@ port = 6000
 
 
 class Socket:
-    def __init__(self, websocket, line):
+    def __init__(self, websocket):
         self.websocket = websocket
-        self.line = line
+        self.line = None
         self.stream_sid = None
 
 
@@ -49,9 +50,11 @@ class Server:
     #             "streamSid": self._stream_sid,
     #             "mark": {"name": uuid.uuid4().hex}}
 
-    async def get_pipeline(self):
+    async def get_pipeline(self, socket):
         """ Return a client pipeline for chunk requests and responses."""
-        line = pipeline.Composer(transcription.Client(), speech.Client())
+        line = pipeline.Composer(
+            transcription.Client(), lines.Client(socket))
+        line = pipeline.Composer(line, speech.Client())
         await line.start()
         return line
 
@@ -113,8 +116,9 @@ class Server:
         for this websocket connection.
         """
         util.log("websocket connection opened")
-        line = await self.get_pipeline()
-        socket = Socket(websocket, line)
+        socket = Socket(websocket)
+        line = await self.get_pipeline(socket)
+        socket.line = line
         self.sockets.add(socket)
         util.log("websocket connections: {}".format(len(self.sockets)))
         done, pending = await asyncio.wait(
