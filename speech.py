@@ -32,11 +32,13 @@ audio_config = texttospeech_v1.AudioConfig()
 audio_config.audio_encoding = "MULAW"
 audio_config.sample_rate_hertz = 8000
 
+
 class Client:
     """
-    Class to process and emit speech.
-    Calls callback with responses.
-    Call add_request() to add text.
+    Class to take string requests and give chunk responses.
+    Yields result chunks with recieve_response().
+    Call start() to begin. Call stop() to stop.
+    Call add_request() to add strings.
     """
     def __init__(self):
         self._send_queue = asyncio.Queue() # Text to send to server.
