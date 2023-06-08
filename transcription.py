@@ -45,8 +45,8 @@ streaming_config = speech_v1.StreamingRecognitionConfig(
 
 class Client:
     """
-    Class to process and emit transcription.
-    Yields result strings with recieve_transcriptions().
+    Class to take chunk requests and give string responses.
+    Yields result strings with recieve_response().
     Call start() to begin. Call stop() to stop.
     Call add_request() to add chunks.
     """
