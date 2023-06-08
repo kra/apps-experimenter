@@ -94,7 +94,6 @@ class Server:
                 {"event": "media",
                  "streamSid": socket.stream_sid,
                  "media": {"payload": payload}}))
-        util.log(f"websocket sent response to {socket.stream_sid}")
 
     async def producer_handler(self, socket):
         """
@@ -105,6 +104,8 @@ class Server:
             for s in self.sockets:
                 if s != socket:
                     await self.send(s, chunk)
+                    util.log(
+                        f"websocket sent response from {socket.stream_sid} to {s.stream_sid}")
 
     async def handler(self, websocket):
         """
