@@ -39,3 +39,6 @@ services:
   - key: GOOGLE_CREDS_JSON
     scope: RUN_AND_BUILD_TIME
     value: '{GOOGLE_CREDS_JSON}'
+  - key: OPENAI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    value: '{OPENAI_API_KEY}'

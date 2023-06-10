@@ -4,6 +4,25 @@ import asyncio
 
 import util
 
+def write_line(sid, text):
+    # Q&D test, log the line.
+    util.log("{}: {}".format(sid, text), 'lines')
+
+def read_lines():
+    try:
+        with open('/tmp/lines', 'r') as f:
+            return f.readlines()
+    except FileNotFoundError:
+        return []
+
+def line_label(line):
+    return line.split(':')[0]
+
+def latest_line_label():
+    try:
+        return line_label(read_lines()[-1])
+    except IndexError:
+        return None
 
 class Client():
     def __init__(self, socket):
@@ -17,7 +36,7 @@ class Client():
         pass
     def add_request(self, text):
         # Q&D test, log the line.
-        util.log("{}: {}".format(self.socket.stream_sid, text), 'lines')
+        write_line(self.socket.stream_sid, text)
         self.recv_queue.put_nowait(text)
     async def receive_response(self):
         """Generator for responses."""

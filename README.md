@@ -1,5 +1,11 @@
 # Setup
 
+Services used:
+
+- DigitalOcean Networking, App Platform
+- Twilio Calls API
+- OpenAI API
+
 To be done once.
 
 - have apps-experimenter repo with dev branch on github
@@ -60,13 +66,14 @@ Delete the app.
 - source env/bin/activate
 - ./test.py
 
-# Smoke test
+# Smoke integration test
 
 - source env/bin/activate
 - ./itest.py
+- ./test_chat.py
 - ./test_server.py
 
-# Smoke integration test
+# Smoke deployed integration test
 
 Hit the URL on the TwiML page e.g.
 

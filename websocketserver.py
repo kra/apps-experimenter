@@ -7,6 +7,7 @@ import time
 import uuid
 import websockets
 
+import chat
 import pipeline
 import lines
 import speech
@@ -24,20 +25,42 @@ class Socket:
         self.stream_sid = None
 
 
-class Server:
+class FakeSocket:
+    """Object to hold a line and a stream_sid identifier."""
+    stream_sid = "chat"
 
+
+class Server:
     def __init__(self):
         """Yields media chunks with recieve_media()."""
         self.server = None
         self.sockets = set()
+        self.chat_socket = None
 
     async def start(self):
         util.log("websocket server starting")
+        await self.fake_handler()
+        await self.periodic_task()
         self.server = await websockets.serve(self.handler, port=port)
 
     # async def stop(self):
     #     await self.server.close()
     #     raise NotImplementedError
+
+    async def chat_requester(self):
+        """Return a chat line if the latest line is not a chat line."""
+        if lines.latest_line_label() != "chat":
+            return await chat.chat_line(None)
+
+    async def periodic_task(self):
+        """Return a task to do the periodic things."""
+        async def p_d():
+            while True:
+                line = await self.chat_requester()
+                if line:
+                    self.chat_socket.line.add_request(line)
+                await asyncio.sleep(10)
+        return asyncio.create_task(p_d())
 
     def _message_to_chunk(self, message):
         return base64.b64decode(message["media"]["payload"])
@@ -100,15 +123,16 @@ class Server:
 
     async def producer_handler(self, socket):
         """
-        Iterate over messages from line, and send them to
-        the websocket.
+        Iterate over messages from socket's line, and send them to
+        the other websockets.
         """
         async for chunk in socket.line.receive_response():
             for s in self.sockets:
                 if s != socket:
                     await self.send(s, chunk)
                     util.log(
-                        f"websocket sent response from {socket.stream_sid} to {s.stream_sid}")
+                        f"websocket sent response from "
+                        "{socket.stream_sid} to {s.stream_sid}")
 
     async def handler(self, websocket):
         """
@@ -131,4 +155,26 @@ class Server:
         self.sockets.remove(socket)
         util.log("websocket connection closed")
 
+    async def get_fake_handler_pipeline(self, socket):
+        """
+        Return a client pipeline for string requests and chunk responses.
+        """
+        line = pipeline.Composer(
+            chat.Client(), lines.Client(socket))
+        line = pipeline.Composer(line, speech.Client())
+        await line.start()
+        return line
 
+    async def fake_handler(self):
+        """
+        Set up and run a producer task without a consumer.
+        """
+        # This isn't really a handler, because there is no consumer
+        # callback. The fake chat_socket recives requests directly from
+        # a task.
+        socket = FakeSocket()
+        line = await self.get_fake_handler_pipeline(socket)
+        socket.line = line
+        self.chat_socket = socket
+        # We don't clean this up, we should do that in stop().
+        asyncio.create_task(self.producer_handler(socket))

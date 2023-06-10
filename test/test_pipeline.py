@@ -2,22 +2,16 @@ import asyncio
 import unittest
 from unittest import mock
 
+import chat
 import pipeline
 
 
-class Client():
+class Client(chat.Client):
     def __init__(self, name):
         self.name = name
-    async def start(self):
-        self.recv_queue = asyncio.Queue() # Bytes received from server.
-    def stop(self):
-        pass
+        self.recv_queue = asyncio.Queue()
     def add_request(self, request):
         self.recv_queue.put_nowait(self.name + request)
-    async def receive_response(self):
-        """Generator for received media chunks."""
-        while True:
-            yield await self.recv_queue.get()
 
 
 class TestPipeline(unittest.IsolatedAsyncioTestCase):
