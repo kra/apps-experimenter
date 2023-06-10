@@ -1,19 +1,21 @@
 # Setup
 
+To be done once.
+
 - have apps-experimenter repo with dev branch on github
 - add app-dev.phu73l.net DigitalOcean domain
-- have config.yaml containing "access-token: <token>"
-
-To be done once.
 
 - virtualenv -p python3 env
 - source env/bin/activate
 - pip install -r requirements.txt
 - pip install python-dotenv
 
-# Set up dev instance
+Have:
 
-Have .env based on .env.sample.
+- config.yaml based on config.yaml.sample
+- .env based on .env.sample.
+
+# Set up dev instance
 
 Create the app, note the id.
 
