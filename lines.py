@@ -17,7 +17,7 @@ class Client():
         pass
     def add_request(self, text):
         # Q&D test, log the line.
-        util.log("{}: {}".format(self.socket.stream_sid, text))
+        util.log("{}: {}".format(self.socket.stream_sid, text), 'lines')
         self.recv_queue.put_nowait(text)
     async def receive_response(self):
         """Generator for responses."""

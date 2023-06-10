@@ -1,9 +1,12 @@
 import os
 
-def log(msg):
+def log(msg, logname=None):
+    if not logname:
+        logname = 'foo'
+    logfile = '/tmp/' + logname
     print(msg)
     # q&d temporary log file
-    with open('/tmp/foo', 'a') as f:
+    with open(logfile, 'a') as f:
         f.write(msg)
         f.write('\n')
 
