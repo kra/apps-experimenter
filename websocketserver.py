@@ -17,6 +17,7 @@ import util
 #host = "localhost"
 port = 6000
 
+chat_label = "Franz"
 
 class Socket:
     def __init__(self, websocket):
@@ -27,7 +28,7 @@ class Socket:
 
 class FakeSocket:
     """Object to hold a line and a stream_sid identifier."""
-    stream_sid = "chat"
+    stream_sid = chat_label
 
 
 class Server:
@@ -48,9 +49,18 @@ class Server:
     #     raise NotImplementedError
 
     async def chat_requester(self):
-        """Return a chat line if the latest line is not a chat line."""
-        if lines.latest_line_label() != "chat":
-            return await chat.chat_line(None)
+        """
+        Return a chat line if the latest two lines are not chat lines.
+        """
+        transcript_lines = lines.read_lines()
+        labels = lines.line_labels(transcript_lines)
+        try:
+            for label in [labels.pop(), labels.pop()]:
+                if label == chat_label:
+                    return
+            return await chat.chat_line(transcript_lines)
+        except IndexError:
+            return
 
     async def periodic_task(self):
         """Return a task to do the periodic things."""

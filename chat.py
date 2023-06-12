@@ -6,20 +6,28 @@ import openai
 import util
 
 
-prompt = """
-Complete this dialog.
+chat_label = "Franz"
 
-Moe: Hello!
-Larry: Who are you?
-Moe: I am Jimmy, who is this?
-Larry: I am Mary.
-Curly: I have an idea.
-Larry: What are we supposed to be doing?
-Curly:
+prompt = """
+Complete this dialog by completing the last line of dialog, spoken by "{}". Add only one line.
+
+Dialog:
+{}
+{}:
 """
 
 def generate_prompt(lines):
-    return prompt
+    return prompt.format(chat_label, '\n'.join(lines), chat_label)
+
+# def normalize_chat_line(text):
+#     try:
+#         lines = text.split('\n')
+#         last_line = lines.pop().strip()
+#     except Exception:
+#         return None
+#     if last_line.startswith(chat_label):
+#         return last_line
+#     return None
 
 async def chat_line(lines):
     response = await openai.Completion.acreate(
@@ -27,6 +35,7 @@ async def chat_line(lines):
         model="text-davinci-003",
         prompt=generate_prompt(lines),
         temperature=0.6)
+    #return normalize_chat_line(response.choices[0].text)
     return response.choices[0].text
 
 

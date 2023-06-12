@@ -18,11 +18,9 @@ def read_lines():
 def line_label(line):
     return line.split(':')[0]
 
-def latest_line_label():
-    try:
-        return line_label(read_lines()[-1])
-    except IndexError:
-        return None
+def line_labels(lines):
+    return [line_label(line) for line in read_lines()]
+
 
 class Client():
     def __init__(self, socket):
