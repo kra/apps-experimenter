@@ -18,6 +18,9 @@ def read_lines():
 def line_label(line):
     return line.split(':')[0]
 
+def line_content(line):
+    return line.split(':')[1]
+
 def line_labels(lines):
     return [line_label(line) for line in read_lines()]
 
