@@ -17,47 +17,47 @@ Dialog:
 {}:
 """
 
-system_message = (
-    "You are writing a script. The characters are trying to understand how to cooperate to share vital information. They are confused and wondering who is hostile, who is friendly, and who has a clue. Statements are short.. Complete the next statement as if Franz said it.")
+# system_message = (
+#     "You are writing a script. The characters are trying to understand how to cooperate to share vital information. They are confused and wondering who is hostile, who is friendly, and who has a clue. Statements are short.. Complete the next statement as if Franz said it.")
 
 def generate_prompt(lines):
     return prompt.format(chat_label, '\n'.join(lines), chat_label)
 
-def generate_messages(transcript_lines):
-    messages = [
-        {'role': 'system',
-         'content': system_message}]
-         #system_message.format(chat_label)}]
-    messages.extend([
-        {'role': 'system',
-         'name': lines.line_label(transcript_line),
-         'content': lines.line_content(transcript_line)}
-        for transcript_line in transcript_lines])
-    return messages
+# def generate_messages(transcript_lines):
+#     messages = [
+#         {'role': 'system',
+#          'content': system_message}]
+#          #system_message.format(chat_label)}]
+#     messages.extend([
+#         {'role': 'system',
+#          'name': lines.line_label(transcript_line),
+#          'content': lines.line_content(transcript_line)}
+#         for transcript_line in transcript_lines])
+#     return messages
 
-def normalize_chat_line(text):
-    label = chat_label + ':'
-    if text.startswith(label):
-        return text[len(label):]
-    if text.startswith(chat_label):
-        return text[len(chat_label):]
-    return text
+# def normalize_chat_line(text):
+#     label = chat_label + ':'
+#     if text.startswith(label):
+#         return text[len(label):]
+#     if text.startswith(chat_label):
+#         return text[len(chat_label):]
+#     return text
 
 async def chat_line(lines):
-    #response = await openai.Completion.acreate(
-    #    model="text-davinci-003",
-    #    prompt=generate_prompt(lines),
-    #    temperature=0.6)
-    #return response.choices[0].text
-    # ChatCompletion lets us use better models than Completion.
-    # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_format_inputs_to_ChatGPT_models.ipynb
-    response = await openai.ChatCompletion.acreate(
-        # "gpt-4" "gpt-3.5-turbo" "text-davinci-003"
-        model="gpt-3.5-turbo",
-        messages=generate_messages(lines),
-        temperature=0.8)
-    response = response.choices[0]['message']['content']
-    response = normalize_chat_line(response)
+    response = await openai.Completion.acreate(
+       model="text-davinci-003",
+       prompt=generate_prompt(lines),
+       temperature=0.6)
+    response = response.choices[0].text
+    # # ChatCompletion lets us use better models than Completion.
+    # # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_format_inputs_to_ChatGPT_models.ipynb
+    # response = await openai.ChatCompletion.acreate(
+    #     # "gpt-4" "gpt-3.5-turbo" "text-davinci-003"
+    #     model="gpt-3.5-turbo",
+    #     messages=generate_messages(lines),
+    #     temperature=0.8)
+    # response = response.choices[0]['message']['content']
+    # response = normalize_chat_line(response)
     return response
 
 class Client():
